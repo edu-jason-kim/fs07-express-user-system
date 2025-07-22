@@ -1,3 +1,4 @@
+import bcrypt from "bcrypt";
 import userRepository from "../repositories/userRepository.js";
 
 async function createUser(user) {
@@ -13,7 +14,11 @@ async function createUser(user) {
   }
 
   // 회원가입 진행 -> 사용자 생성
-  const newUser = await userRepository.save(user);
+  const hashedPassword = await hashPassword(user.password);
+  const newUser = await userRepository.save({
+    ...user,
+    password: hashedPassword,
+  });
 
   // 사용자 데이터 응답
   return filterSensitiveUserData(newUser);
@@ -30,15 +35,18 @@ async function getUser(email, password) {
     throw error;
   }
 
-  // 비밀번호를 확인
   verifyPassword(password, user.password);
 
   // 사용자 데이터 응답
   return filterSensitiveUserData(user);
 }
 
-function verifyPassword(inputPassword, password) {
-  const isMatch = inputPassword === password;
+function hashPassword(password) {
+  return bcrypt.hash(password, 10);
+}
+
+async function verifyPassword(inputPassword, hashedPassword) {
+  const isMatch = await bcrypt.compare(inputPassword, hashedPassword);
   if (!isMatch) {
     const error = new Error("Unauthorized");
     error.code = 401;
