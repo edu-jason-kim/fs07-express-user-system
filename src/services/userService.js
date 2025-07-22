@@ -19,6 +19,33 @@ async function createUser(user) {
   return filterSensitiveUserData(newUser);
 }
 
+async function getUser(email, password) {
+  // email을 통해 사용자 정보를 가져온다
+  const user = await userRepository.findByEmail(email);
+
+  // 사용자 정보가 없으면 401 에러 발생
+  if (!user) {
+    const error = new Error("Unauthorized");
+    error.code = 401;
+    throw error;
+  }
+
+  // 비밀번호를 확인
+  verifyPassword(password, user.password);
+
+  // 사용자 데이터 응답
+  return filterSensitiveUserData(user);
+}
+
+function verifyPassword(inputPassword, password) {
+  const isMatch = inputPassword === password;
+  if (!isMatch) {
+    const error = new Error("Unauthorized");
+    error.code = 401;
+    throw error;
+  }
+}
+
 function filterSensitiveUserData(user) {
   const { password, ...rest } = user;
   return rest;
@@ -26,4 +53,5 @@ function filterSensitiveUserData(user) {
 
 export default {
   createUser,
+  getUser,
 };
