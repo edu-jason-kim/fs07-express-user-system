@@ -42,6 +42,10 @@ async function getUser(email, password) {
   return filterSensitiveUserData(user);
 }
 
+function updateUser(id, data) {
+  return userRepository.update(id, data);
+}
+
 function hashPassword(password) {
   return bcrypt.hash(password, 10);
 }
@@ -56,18 +60,32 @@ async function verifyPassword(inputPassword, hashedPassword) {
 }
 
 function filterSensitiveUserData(user) {
-  const { password, ...rest } = user;
+  const { password, refreshToken, ...rest } = user;
   return rest;
 }
 
-function createToken(user) {
+function createToken(user, type) {
   const payload = { userId: user.id, name: user.name };
-  const options = { expiresIn: "1h" };
+  const options = { expiresIn: type === "refresh" ? "2w" : "1h" };
   return jwt.sign(payload, process.env.JWT_SECRET, options);
+}
+
+async function refreshToken(userId, refreshToken) {
+  const user = await userRepository.findById(userId);
+
+  if (!user || user.refreshToken !== refreshToken) {
+    const error = new Error("Unauthorized");
+    error.code = 401;
+    throw error;
+  }
+
+  return createToken(user);
 }
 
 export default {
   createUser,
   getUser,
+  updateUser,
   createToken,
+  refreshToken,
 };

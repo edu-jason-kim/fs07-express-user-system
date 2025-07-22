@@ -31,10 +31,20 @@ async function verifySessionLogin(req, res, next) {
   }
 }
 
+// 기본 값: Authorization 헤더를 통해 토큰을 검증
 const verifyAccessToken = expressjwt({
   secret: process.env.JWT_SECRET,
   algorithms: ["HS256"],
   requestProperty: "user",
+});
+
+// Cookie 헤더를 통해 토큰을 검증
+const verifyRefreshToken = expressjwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ["HS256"],
+  requestProperty: "user",
+  // 토큰을 어디서 꺼낼지 결정하는 함수
+  getToken: (req) => req.cookies.refreshToken,
 });
 
 async function verifyReviewAuth(req, res, next) {
@@ -66,5 +76,6 @@ async function verifyReviewAuth(req, res, next) {
 export default {
   verifySessionLogin,
   verifyAccessToken,
+  verifyRefreshToken,
   verifyReviewAuth,
 };
