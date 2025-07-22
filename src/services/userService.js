@@ -35,7 +35,7 @@ async function getUser(email, password) {
     throw error;
   }
 
-  verifyPassword(password, user.password);
+  await verifyPassword(password, user.password);
 
   // 사용자 데이터 응답
   return filterSensitiveUserData(user);
