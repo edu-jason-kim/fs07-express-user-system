@@ -1,11 +1,13 @@
-import express from 'express';
-
-import reviewService from '../services/reviewService.js';
+import express from "express";
+import reviewService from "../services/reviewService.js";
+import auth from "../middlewares/auth.js";
 
 const reviewController = express.Router();
 
-reviewController.post('/', async (req, res, next) => {
+reviewController.post("/", auth.verifyAccessToken, async (req, res, next) => {
   const { userId } = req.user;
+  console.log("@review controller", { "req.user": req.user });
+
   try {
     const createdReview = await reviewService.create({
       ...req.body,
@@ -17,7 +19,7 @@ reviewController.post('/', async (req, res, next) => {
   }
 });
 
-reviewController.get('/:id', async (req, res, next) => {
+reviewController.get("/:id", async (req, res, next) => {
   const { id } = req.params;
   try {
     const review = await reviewService.getById(id);
@@ -27,7 +29,7 @@ reviewController.get('/:id', async (req, res, next) => {
   }
 });
 
-reviewController.get('/', async (req, res, next) => {
+reviewController.get("/", async (req, res, next) => {
   try {
     const reviews = await reviewService.getAll();
     return res.json(reviews);
@@ -36,25 +38,26 @@ reviewController.get('/', async (req, res, next) => {
   }
 });
 
-reviewController.put('/:id', async (req, res, next) => {
+reviewController.put("/:id", auth.verifyAccessToken, async (req, res, next) => {
   try {
-    const updatedReview = await reviewService.update(
-      req.params.id,
-      req.body,
-    );
+    const updatedReview = await reviewService.update(req.params.id, req.body);
     return res.json(updatedReview);
   } catch (error) {
     return next(error);
   }
 });
 
-reviewController.delete('/:id', async (req, res, next) => {
-  try {
-    const deletedReview = await reviewService.deleteById(req.params.id);
-    return res.json(deletedReview);
-  } catch (error) {
-    return next(error);
+reviewController.delete(
+  "/:id",
+  auth.verifyAccessToken,
+  async (req, res, next) => {
+    try {
+      const deletedReview = await reviewService.deleteById(req.params.id);
+      return res.json(deletedReview);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 export default reviewController;

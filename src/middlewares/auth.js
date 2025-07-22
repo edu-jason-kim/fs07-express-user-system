@@ -1,3 +1,4 @@
+import { expressjwt } from "express-jwt";
 import userRepository from "../repositories/userRepository.js";
 
 function throwUnauthorizedError() {
@@ -29,6 +30,13 @@ async function verifySessionLogin(req, res, next) {
   }
 }
 
+const verifyAccessToken = expressjwt({
+  secret: process.env.JWT_SECRET,
+  algorithms: ["HS256"],
+  requestProperty: "user",
+});
+
 export default {
   verifySessionLogin,
+  verifyAccessToken,
 };
