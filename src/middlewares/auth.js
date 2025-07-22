@@ -1,5 +1,6 @@
 import { expressjwt } from "express-jwt";
 import userRepository from "../repositories/userRepository.js";
+import reviewRepository from "../repositories/reviewRepository.js";
 
 function throwUnauthorizedError() {
   const error = new Error("Unauthorized");
@@ -36,7 +37,34 @@ const verifyAccessToken = expressjwt({
   requestProperty: "user",
 });
 
+async function verifyReviewAuth(req, res, next) {
+  const reviewId = req.params.id;
+  const userId = req.user.userId;
+
+  try {
+    // 리뷰가 없으면 404
+    const review = await reviewRepository.getById(reviewId);
+    if (!review) {
+      const error = new Error("Review not found");
+      error.code = 404;
+      throw error;
+    }
+
+    // 내 리뷰가 아니면 403 (권한없음)
+    if (review.authorId !== userId) {
+      const error = new Error("Forbidden");
+      error.code = 403;
+      throw error;
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
+}
+
 export default {
   verifySessionLogin,
   verifyAccessToken,
+  verifyReviewAuth,
 };

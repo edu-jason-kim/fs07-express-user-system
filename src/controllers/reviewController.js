@@ -38,22 +38,28 @@ reviewController.get("/", async (req, res, next) => {
   }
 });
 
-reviewController.put("/:id", auth.verifyAccessToken, async (req, res, next) => {
-  try {
-    const updatedReview = await reviewService.update(req.params.id, req.body);
-    return res.json(updatedReview);
-  } catch (error) {
-    return next(error);
+reviewController.put(
+  "/:id",
+  auth.verifyAccessToken,
+  auth.verifyReviewAuth,
+  async (req, res, next) => {
+    try {
+      const updatedReview = await reviewService.update(req.params.id, req.body);
+      return res.json(updatedReview);
+    } catch (error) {
+      return next(error);
+    }
   }
-});
+);
 
 reviewController.delete(
   "/:id",
   auth.verifyAccessToken,
+  auth.verifyReviewAuth,
   async (req, res, next) => {
     try {
       const deletedReview = await reviewService.deleteById(req.params.id);
-      return res.json(deletedReview);
+      return res.status(204).json(deletedReview);
     } catch (error) {
       return next(error);
     }
