@@ -1,0 +1,20 @@
+# 파일명: docker-compose.yml
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: express_user_system_db
+    restart: unless-stopped
+
+    # DATABASE_URL 속성과 매핑되는 Postgres 기본 변수
+    environment:
+      POSTGRES_DB: express_user_system # DB 이름
+      POSTGRES_USER: codeit # 사용자
+      POSTGRES_PASSWORD: mysecret # 비밀번호
+
+    ports:
+      - "5432:5432" # 호스트 ↔ 컨테이너 포트 매핑
+
+volumes:
+  db-data:
