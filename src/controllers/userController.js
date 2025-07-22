@@ -12,6 +12,18 @@ userController.post("/users", async (req, res, next) => {
   }
 });
 
+userController.post("/token-login", async (req, res, next) => {
+  const { email, password } = req.body;
+
+  try {
+    const user = await userService.getUser(email, password);
+    const accessToken = userService.createToken(user);
+    return res.json({ accessToken });
+  } catch (error) {
+    next(error);
+  }
+});
+
 userController.post("/session-login", async (req, res, next) => {
   const { email, password } = req.body;
 
