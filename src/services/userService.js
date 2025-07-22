@@ -79,7 +79,9 @@ async function refreshToken(userId, refreshToken) {
     throw error;
   }
 
-  return createToken(user);
+  const accessToken = createToken(user);
+  const newRefreshToken = createToken(user, "refresh");
+  return { accessToken, newRefreshToken };
 }
 
 export default {

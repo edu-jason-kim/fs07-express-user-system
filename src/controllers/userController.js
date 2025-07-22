@@ -43,7 +43,19 @@ userController.post(
     try {
       const { refreshToken } = req.cookies;
       const { userId } = req.user;
-      const accessToken = await userService.refreshToken(userId, refreshToken);
+      const { accessToken, newRefreshToken } = await userService.refreshToken(
+        userId,
+        refreshToken
+      );
+      await userService.updateUser(userId, { refreshToken: newRefreshToken });
+
+      res.cookie("refreshToken", newRefreshToken, {
+        path: "/token/refresh",
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+      });
+
       return res.json({ accessToken });
     } catch (error) {
       next(error);
