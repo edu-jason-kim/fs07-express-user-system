@@ -46,6 +46,17 @@ function updateUser(id, data) {
   return userRepository.update(id, data);
 }
 
+async function oauthCreateOrUpdate({ provider, providerId, email, name }) {
+  const user = await userRepository.createOrUpdate(
+    provider,
+    providerId,
+    email,
+    name
+  );
+
+  return filterSensitiveUserData(user);
+}
+
 function hashPassword(password) {
   return bcrypt.hash(password, 10);
 }
@@ -88,6 +99,7 @@ export default {
   createUser,
   getUser,
   updateUser,
+  oauthCreateOrUpdate,
   createToken,
   refreshToken,
 };

@@ -2,6 +2,7 @@ import passport from "passport";
 import localStrategy from "../middlewares/passport/localStarategy.js";
 import userRepository from "../repositories/userRepository.js";
 import jwtStrategy from "../middlewares/passport/jwtStrategy.js";
+import googleStrategy from "../middlewares/passport/googleStrategy.js";
 
 // 미들웨어에서 넘겨준 사용자 정보로, 실제 세션에 저장할 정보를 등록
 passport.serializeUser((user, done) => {
@@ -21,5 +22,6 @@ passport.deserializeUser(async (id, done) => {
 passport.use(localStrategy);
 passport.use("access-token", jwtStrategy.accessTokenStrategy);
 passport.use("refresh-token", jwtStrategy.refreshTokenStrategy);
+passport.use(googleStrategy);
 
 export default passport;

@@ -109,4 +109,30 @@ userController.delete("/session-logout", async (req, res, next) => {
   });
 });
 
+userController.get(
+  "/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+userController.get(
+  "/auth/google/callback",
+  passport.authenticate("google"),
+  async (req, res, next) => {
+    const user = req.user;
+
+    const accessToken = userService.createToken(user);
+    const refreshToken = userService.createToken(user, "refresh");
+    await userService.updateUser(user.id, { refreshToken });
+
+    res.cookie("refreshToken", refreshToken, {
+      path: "/token/refresh",
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+
+    return res.json({ accessToken });
+  }
+);
+
 export default userController;
