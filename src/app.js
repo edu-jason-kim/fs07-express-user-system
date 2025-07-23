@@ -6,6 +6,7 @@ import reviewController from "./controllers/reviewController.js";
 import userController from "./controllers/userController.js";
 import errorHandler from "./middlewares/errorHandler.js";
 import session from "express-session";
+import passport from "./config/passport.js";
 
 const app = express();
 
@@ -16,6 +17,9 @@ app.use(
     saveUninitialized: true,
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use(express.json());
 app.use(cookieParser());

@@ -1,6 +1,7 @@
 import express from "express";
 import userService from "../services/userService.js";
 import auth from "../middlewares/auth.js";
+import passport from "../config/passport.js";
 
 const userController = express.Router();
 
@@ -83,20 +84,15 @@ userController.delete(
   }
 );
 
-userController.post("/session-login", async (req, res, next) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await userService.getUser(email, password);
-
-    // 세션에 사용자 정보 저장
-    req.session.userId = user.id;
-
+userController.post(
+  "/session-login",
+  passport.authenticate("local"),
+  async (req, res) => {
+    const user = req.user;
+    console.log(user);
     return res.json(user);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 userController.delete("/session-logout", async (req, res, next) => {
   req.session.destroy((err) => {

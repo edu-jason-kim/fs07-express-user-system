@@ -31,6 +31,14 @@ async function verifySessionLogin(req, res, next) {
   }
 }
 
+function passportAuthenticationSession(req, res, next) {
+  if (!req.isAuthenticated()) {
+    throwUnauthorizedError();
+  } else {
+    next();
+  }
+}
+
 // 기본 값: Authorization 헤더를 통해 토큰을 검증
 const verifyAccessToken = expressjwt({
   secret: process.env.JWT_SECRET,
@@ -78,4 +86,5 @@ export default {
   verifyAccessToken,
   verifyRefreshToken,
   verifyReviewAuth,
+  passportAuthenticationSession,
 };
