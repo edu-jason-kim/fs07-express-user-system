@@ -24,6 +24,8 @@ userController.post("/token-login", async (req, res, next) => {
 
     // 쿠키로 토큰을 전달 -> 브라우저 쿠키에 저장 -> 쿠키 헤더를 통해 전달이 된다
     res.cookie("refreshToken", refreshToken, {
+      // 해당 경로를 포함한 요청을 보낼 때, 쿠키가 자동으로 포함되게 함
+      path: "/token/refresh",
       httpOnly: true,
       sameSite: "none",
       secure: true,
@@ -60,6 +62,24 @@ userController.post(
     } catch (error) {
       next(error);
     }
+  }
+);
+
+userController.delete(
+  "/token-logout",
+  auth.verifyAccessToken,
+  async (req, res, next) => {
+    const userId = req.user.userId;
+    await userService.updateUser(userId, { refreshToken: null });
+
+    res.clearCookie("refreshToken", {
+      path: "/token/refresh",
+      httpOnly: true,
+      sameSite: "none",
+      secure: true,
+    });
+
+    res.sendStatus(204);
   }
 );
 
