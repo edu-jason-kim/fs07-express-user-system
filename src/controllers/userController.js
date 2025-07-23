@@ -41,11 +41,11 @@ userController.post("/token-login", async (req, res, next) => {
 
 userController.post(
   "/token/refresh",
-  auth.verifyRefreshToken,
+  passport.authenticate("refresh-token", { session: false }),
   async (req, res, next) => {
     try {
       const { refreshToken } = req.cookies;
-      const { userId } = req.user;
+      const userId = req.user.id;
       const { accessToken, newRefreshToken } = await userService.refreshToken(
         userId,
         refreshToken
@@ -68,9 +68,9 @@ userController.post(
 
 userController.delete(
   "/token-logout",
-  auth.verifyAccessToken,
+  passport.authenticate("access-token", { session: false }),
   async (req, res, next) => {
-    const userId = req.user.userId;
+    const userId = req.user.id;
     await userService.updateUser(userId, { refreshToken: null });
 
     res.clearCookie("refreshToken", {

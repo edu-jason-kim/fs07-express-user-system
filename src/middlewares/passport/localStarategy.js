@@ -2,7 +2,10 @@ import { Strategy as LocalStrategy } from "passport-local";
 import userService from "../../services/userService.js";
 
 const localStrategy = new LocalStrategy(
+  // option
   { usernameField: "email" },
+
+  // verify
   async (email, password, done) => {
     try {
       const user = await userService.getUser(email, password);

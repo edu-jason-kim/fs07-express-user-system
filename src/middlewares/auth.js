@@ -57,7 +57,7 @@ const verifyRefreshToken = expressjwt({
 
 async function verifyReviewAuth(req, res, next) {
   const reviewId = req.params.id;
-  const userId = req.user.userId;
+  const userId = req.user.id;
 
   try {
     // 리뷰가 없으면 404
